@@ -1,0 +1,29 @@
+# Archivos y carpetas de compilación
+# Archivos binarios
+bin/
+obj/
+
+# Resultados de las pruebas
+TestResults/
+
+# Archivos de Visual Studio
+# Archivos de solución
+*.suo
+*.user
+
+# Carpeta de soluciones locales
+.vs/
+
+# Carpetas de paquetes de NuGet
+packages/
+
+# Carpetas de Node.js (si se usan)
+node_modules/
+
+# Otros
+# Archivos de registro (logs)
+*.log
+
+# Archivos de configuración local de desarrollo
+# Puedes añadir más aquí si es necesario
+# ej. : *.config

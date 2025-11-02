@@ -1,0 +1,183 @@
+﻿@using SchoolProject.ViewModels
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Registro";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Register Content -->
+<div class="auth-container">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+            <i class="bi bi-person-plus-fill auth-icon-large"></i>
+            <h2 class="auth-title">Crear Cuenta Nueva</h2>
+            <p class="text-muted">Complete el formulario para unirse al sistema</p>
+        </div>
+
+        <form method="post" asp-action="Register" asp-controller="Auth" id="registerForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <!-- SECCIÓN: DATOS DE ACCESO -->
+            <div class="mb-4">
+                <h5 class="section-title">
+                    <i class="bi bi-shield-lock me-2"></i>Datos de Acceso
+                </h5>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="UserName" class="form-label fw-semibold required-field">Nombre de Usuario</label>
+                        <div class="icon-input">
+                            <i class="bi bi-person-circle"></i>
+                            <input asp-for="UserName" class="form-control input-with-icon" placeholder="Ej: jperez" />
+                        </div>
+                        <span asp-validation-for="UserName" class="text-danger small"></span>
+                        <small class="text-muted d-block mt-1">Solo letras, números y guión bajo</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Email" class="form-label fw-semibold required-field">Correo Electrónico</label>
+                        <div class="icon-input">
+                            <i class="bi bi-envelope-fill"></i>
+                            <input asp-for="Email" class="form-control input-with-icon" placeholder="correo@ejemplo.com" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold required-field">Contraseña</label>
+                        <div class="icon-input">
+                            <i class="bi bi-lock-fill"></i>
+                            <input asp-for="Password" type="password" class="form-control input-with-icon" placeholder="Mínimo 6 caracteres" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label fw-semibold required-field">Confirmar Contraseña</label>
+                        <div class="icon-input">
+                            <i class="bi bi-lock-fill"></i>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control input-with-icon" placeholder="Repite la contraseña" />
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DIVISOR -->
+            <div class="section-divider">
+                <span>PERFIL DE PROFESOR</span>
+            </div>
+
+            <!-- CHECKBOX: CREAR PERFIL DE PROFESOR -->
+            <div class="mb-4">
+                <div class="form-check form-switch">
+                    <input asp-for="CreateProfessorProfile" class="form-check-input" id="crearPerfilCheck" checked />
+                    <label asp-for="CreateProfessorProfile" class="form-check-label fw-semibold">Crear perfil de profesor ahora</label>
+                </div>
+                <small class="text-muted">
+                    Si activas esta opción, podrás completar tus datos de profesor ahora.
+                    Si lo prefieres, puedes crear tu perfil más tarde.
+                </small>
+            </div>
+
+            <!-- SECCIÓN: DATOS DE PROFESOR (CONDICIONAL) -->
+            <div id="profesorSection" class="profesor-section">
+                <h5 class="section-title">
+                    <i class="bi bi-person-badge me-2"></i>Información del Profesor
+                </h5>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="ProfessorCode" class="form-label fw-semibold required-field">Código de Profesor</label>
+                        <div class="icon-input">
+                            <i class="bi bi-upc-scan"></i>
+                            <input asp-for="ProfessorCode" class="form-control input-with-icon" placeholder="Ej: PROF001" />
+                        </div>
+                        <span asp-validation-for="ProfessorCode" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold required-field">Nombre</label>
+                        <div class="icon-input">
+                            <i class="bi bi-person"></i>
+                            <input asp-for="Name" class="form-control input-with-icon" placeholder="Juan" />
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Lastname" class="form-label fw-semibold required-field">Apellido</label>
+                        <div class="icon-input">
+                            <i class="bi bi-person"></i>
+                            <input asp-for="Lastname" class="form-control input-with-icon" placeholder="Pérez" />
+                        </div>
+                        <span asp-validation-for="Lastname" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Phone" class="form-label fw-semibold">Teléfono</label>
+                        <div class="icon-input">
+                            <i class="bi bi-telephone-fill"></i>
+                            <input asp-for="Phone" class="form-control input-with-icon" placeholder="555-1234" />
+                        </div>
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Department" class="form-label fw-semibold required-field">Departamento</label>
+                        <div class="icon-input">
+                            <i class="bi bi-award-fill"></i>
+                            <input asp-for="Department" class="form-control input-with-icon" placeholder="Ej: Matemáticas" />
+                        </div>
+                        <span asp-validation-for="Department" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="mt-4">
+                <button type="submit" class="btn btn-submit">
+                    <i class="bi bi-check-circle me-2"></i>Crear Cuenta
+                </button>
+
+                <div class="text-center mt-3">
+                    <p class="mb-0">
+                        ¿Ya tienes cuenta?
+                        <a asp-action="Login" asp-controller="Auth" class="text-decoration-none text-primary-custom">Inicia sesión aquí</a>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.3/jquery.validate.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery.validation.unobtrusive/3.2.12/jquery.validation.unobtrusive.min.js"></script>
+
+    <script>
+        // Mostrar/ocultar sección de profesor según el checkbox
+        $(document).ready(function () {
+            function toggleProfesorSection() {
+                if ($('#crearPerfilCheck').is(':checked')) {
+                    $('#profesorSection').slideDown(300);
+                } else {
+                    $('#profesorSection').slideUp(300);
+                }
+            }
+
+            // Ejecutar al cargar
+            toggleProfesorSection();
+
+            // Ejecutar al cambiar el checkbox
+            $('#crearPerfilCheck').change(function () {
+                toggleProfesorSection();
+            });
+        });
+    </script>
+}

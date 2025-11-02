@@ -1,0 +1,413 @@
+﻿/* ===================================
+   Variables CSS
+   =================================== */
+:root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --secondary: #06b6d4;
+    --accent: #f59e0b;
+}
+
+/* ===================================
+   Estilos Generales
+   =================================== */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+/* ===================================
+   Navbar
+   =================================== */
+.navbar {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--primary) !important;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+    .nav-link:hover {
+        color: var(--primary) !important;
+    }
+
+/* ===================================
+   Hero Section (Home)
+   =================================== */
+.hero-section {
+    padding: 100px 0;
+    color: white;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 30px;
+    opacity: 0.95;
+}
+
+/* ===================================
+   Botones
+   =================================== */
+.btn-primary-custom {
+    background: white !important;
+    color: var(--primary) !important;
+    padding: 15px 35px !important;
+    border-radius: 50px !important;
+    font-weight: 600 !important;
+    border: none !important;
+    font-size: 1.1rem !important;
+    transition: transform 0.3s, box-shadow 0.3s !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+        color: var(--primary) !important;
+        background: white !important;
+    }
+
+    .btn-primary-custom:focus,
+    .btn-primary-custom:active {
+        background: white !important;
+        color: var(--primary) !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    }
+
+.btn-submit {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+    width: 100%;
+    transition: transform 0.3s;
+}
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+    }
+
+/* ===================================
+   Feature Cards (Home)
+   =================================== */
+.feature-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+}
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===================================
+   Stats Section (Home)
+   =================================== */
+.stats-section {
+    background: white;
+    padding: 60px 0;
+    margin-top: -50px;
+    border-radius: 30px 30px 0 0;
+}
+
+.stat-card {
+    text-align: center;
+    padding: 20px;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-label {
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+/* ===================================
+   Auth Container (Login & Register)
+   =================================== */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 20px;
+    padding: 60px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 450px;
+    width: 100%;
+}
+
+.auth-title {
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* ===================================
+   Formularios
+   =================================== */
+.form-control {
+    border-radius: 10px;
+    padding: 12px 15px;
+    border: 2px solid #e5e7eb;
+    transition: border-color 0.3s;
+}
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+    }
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #374151;
+}
+
+/* ===================================
+   Social Login Buttons
+   =================================== */
+.social-login {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.social-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    background: white;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+    .social-btn:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
+
+/* ===================================
+   Utilidades
+   =================================== */
+.page-hidden {
+    display: none;
+}
+
+/* ===================================
+   Responsive Design
+   =================================== */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .auth-card {
+        padding: 30px 20px;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .btn-primary-custom {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .social-login {
+        flex-direction: column;
+    }
+}
+
+/* ===================================
+   Animaciones adicionales
+   =================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-card {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ===================================
+   Scroll suave para navbar
+   =================================== */
+.navbar-scrolled {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ===================================
+   Enlaces de texto
+   =================================== */
+a.text-primary-custom {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+    a.text-primary-custom:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+/* ===================================
+   Register - Estilos Adicionales
+   =================================== */
+.auth-card-wide {
+    max-width: 1100px;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-icon-large {
+    font-size: 4rem;
+    color: var(--primary);
+    display: block;
+    margin-bottom: 15px;
+}
+
+.section-title {
+    color: var(--primary);
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+}
+
+.section-divider {
+    border-top: 2px solid var(--primary);
+    margin: 30px 0;
+    position: relative;
+}
+
+    .section-divider span {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 0 15px;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+.icon-input {
+    position: relative;
+}
+
+    .icon-input i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary);
+        z-index: 10;
+        pointer-events: none;
+    }
+
+.input-with-icon {
+    padding-left: 45px !important;
+}
+
+.profesor-section {
+    background: #f8f9ff;
+    border-radius: 15px;
+    padding: 35px;
+    margin-top: 20px;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.form-check-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+}
+
+.required-field::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}

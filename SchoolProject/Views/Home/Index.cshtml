@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+    <!-- Home Page -->
+    <div id="homePage">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container text-center">
+                <h1 class="hero-title">Gestiona tu Colegio de Forma Inteligente</h1>
+                <p class="hero-subtitle">La plataforma completa para administrar estudiantes, docentes, calificaciones y más</p>
+                <button class="btn btn-primary-custom btn-lg" onclick="showPage('register')">
+                    Comenzar Gratis <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Colegios</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-number">50K+</div>
+                            <div class="stat-label">Estudiantes</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-number">5K+</div>
+                            <div class="stat-label">Docentes</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat-card">
+                            <div class="stat-number">99%</div>
+                            <div class="stat-label">Satisfacción</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-5 bg-light">
+            <div class="container">
+                <h2 class="text-center mb-5 fw-bold">Características Principales</h2>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-users"></i></div>
+                            <h4 class="fw-bold">Gestión de Estudiantes</h4>
+                            <p class="text-muted">Administra perfiles, asistencias, y expedientes académicos de forma centralizada</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                            <h4 class="fw-bold">Seguimiento Académico</h4>
+                            <p class="text-muted">Registra calificaciones, genera reportes y analiza el rendimiento estudiantil</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-calendar-alt"></i></div>
+                            <h4 class="fw-bold">Horarios y Eventos</h4>
+                            <p class="text-muted">Organiza horarios de clases, eventos escolares y calendario académico</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                            <h4 class="fw-bold">Control Financiero</h4>
+                            <p class="text-muted">Gestiona pagos, mensualidades y genera estados financieros automáticos</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-bell"></i></div>
+                            <h4 class="fw-bold">Comunicación</h4>
+                            <p class="text-muted">Envía notificaciones a padres, estudiantes y personal docente</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h4 class="fw-bold">Seguridad Total</h4>
+                            <p class="text-muted">Protección de datos con encriptación y respaldos automáticos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showPage(page) {
+            const pages = ['homePage', 'loginPage', 'registerPage'];
+            const navbar = document.querySelector('.navbar');
+
+            pages.forEach(p => {
+                document.getElementById(p).classList.add('page-hidden');
+            });
+
+            document.getElementById(page + 'Page').classList.remove('page-hidden');
+
+            if (page === 'home') {
+                navbar.classList.remove('bg-light');
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            } else {
+                navbar.classList.add('bg-light');
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const navbar = document.querySelector('.navbar');
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 50) {
+                    navbar.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                } else {
+                    navbar.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
