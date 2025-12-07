@@ -1,0 +1,336 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["BodyClass"] = "dashboard-page";
+}
+
+<div class="dashboard-container">
+
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="dashboard-title">
+                        <i class="bi bi-speedometer2"></i> Panel de Control
+                    </h1>
+                    <p class="dashboard-subtitle">Bienvenido, <strong>@User.Identity.Name</strong></p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="dashboard-date">
+                        <i class="bi bi-calendar-check"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal con fondo blanco -->
+    <div class="container-fluid px-4 py-4">
+        <div class="dashboard-content-card">
+
+            <!-- Tarjetas de Estadísticas Rápidas -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="stats-card stats-card-primary">
+                        <div class="stats-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 class="stats-number">
+                                @(ViewBag.TotalStudents ?? 0)
+                            </h3>
+                            <p class="stats-label">Estudiantes Activos</p>
+                        </div>
+                        <div class="stats-footer">
+                            <a asp-controller="Dashboard" asp-action="Students" class="stats-link">Ver todos <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="stats-card stats-card-success">
+                        <div class="stats-icon">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 class="stats-number">
+                                @(ViewBag.TotalProfessors ?? 0)
+                            </h3>
+                            <p class="stats-label">Profesores</p>
+                        </div>
+                        <div class="stats-footer">
+                            <a asp-controller="Dashboard" asp-action="Professors" class="stats-link">Ver todos <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="stats-card stats-card-warning">
+                        <div class="stats-icon">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 class="stats-number">
+                                @(ViewBag.TotalCourses ?? 0)
+                            </h3>
+                            <p class="stats-label">Cursos Activos</p>
+                        </div>
+                        <div class="stats-footer">
+                            <a asp-controller="Dashboard" asp-action="Courses" class="stats-link">Ver todos <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-3">
+                    <div class="stats-card stats-card-info">
+                        <div class="stats-icon">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 class="stats-number">
+                                @(ViewBag.TotalEnrollments ?? 0)
+                            </h3>
+                            <p class="stats-label">Inscripciones</p>
+                        </div>
+                        <div class="stats-footer">
+                            <a asp-controller="Dashboard" asp-action="Enrollments" class="stats-link">Ver todos <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Acciones Rápidas -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="bi bi-lightning-charge-fill"></i> Acciones Rápidas
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <a asp-controller="Dashboard" asp-action="Students" class="action-card">
+                        <div class="action-icon bg-primary">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+                        <h5 class="action-title">Nuevo Estudiante</h5>
+                        <p class="action-description">Registrar un nuevo estudiante</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <a asp-controller="Dashboard" asp-action="Professors" class="action-card">
+                        <div class="action-icon bg-success">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <h5 class="action-title">Nuevo Profesor</h5>
+                        <p class="action-description">Agregar profesor al sistema</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <a asp-controller="Dashboard" asp-action="Courses" class="action-card">
+                        <div class="action-icon bg-warning">
+                            <i class="bi bi-journal-plus"></i>
+                        </div>
+                        <h5 class="action-title">Crear Curso</h5>
+                        <p class="action-description">Configurar un nuevo curso</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <a asp-controller="Dashboard" asp-action="ClassSchedules" class="action-card">
+                        <div class="action-icon bg-info">
+                            <i class="bi bi-calendar-plus"></i>
+                        </div>
+                        <h5 class="action-title">Configurar Horario</h5>
+                        <p class="action-description">Gestionar horarios de clase</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <a asp-controller="Dashboard" asp-action="Scores" class="action-card">
+                        <div class="action-icon bg-danger">
+                            <i class="bi bi-clipboard2-check-fill"></i>
+                        </div>
+                        <h5 class="action-title">Registrar Calificaciones</h5>
+                        <p class="action-description">Ingresar notas de estudiantes</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <a asp-controller="Dashboard" asp-action="Enrollments" class="action-card">
+                        <div class="action-icon bg-purple">
+                            <i class="bi bi-card-checklist"></i>
+                        </div>
+                        <h5 class="action-title">Inscripciones</h5>
+                        <p class="action-description">Gestionar inscripciones</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <a href="#" class="action-card">
+                        <div class="action-icon bg-teal">
+                            <i class="bi bi-bar-chart-fill"></i>
+                        </div>
+                        <h5 class="action-title">Reportes</h5>
+                        <p class="action-description">Generar reportes y análisis</p>
+                    </a>
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <a href="#" class="action-card">
+                        <div class="action-icon bg-dark">
+                            <i class="bi bi-gear-fill"></i>
+                        </div>
+                        <h5 class="action-title">Configuración</h5>
+                        <p class="action-description">Ajustes del sistema</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sección de Información Adicional -->
+            <div class="row">
+                <!-- Actividad Reciente -->
+                <div class="col-lg-6 mb-4">
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <h5 class="info-card-title">
+                                <i class="bi bi-clock-history"></i> Actividad Reciente
+                            </h5>
+                        </div>
+                        <div class="info-card-body">
+                            <div class="activity-item">
+                                <div class="activity-icon bg-primary">
+                                    <i class="bi bi-person-plus"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="activity-text">Nuevo estudiante registrado: <strong>María González</strong></p>
+                                    <small class="activity-time">Hace 5 minutos</small>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-icon bg-success">
+                                    <i class="bi bi-clipboard-check"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="activity-text">Calificaciones actualizadas en <strong>Matemáticas 101</strong></p>
+                                    <small class="activity-time">Hace 15 minutos</small>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-icon bg-warning">
+                                    <i class="bi bi-journal-text"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="activity-text">Nuevo curso creado: <strong>Historia Universal</strong></p>
+                                    <small class="activity-time">Hace 1 hora</small>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-icon bg-info">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="activity-text">Horario actualizado para el <strong>Grupo A</strong></p>
+                                    <small class="activity-time">Hace 2 horas</small>
+                                </div>
+                            </div>
+
+                            <div class="activity-item">
+                                <div class="activity-icon bg-purple">
+                                    <i class="bi bi-card-checklist"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <p class="activity-text">5 nuevas inscripciones procesadas</p>
+                                    <small class="activity-time">Hace 3 horas</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Próximos Eventos -->
+                <div class="col-lg-6 mb-4">
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <h5 class="info-card-title">
+                                <i class="bi bi-calendar-event"></i> Próximos Eventos
+                            </h5>
+                        </div>
+                        <div class="info-card-body">
+                            <div class="event-item">
+                                <div class="event-date">
+                                    <span class="event-day">15</span>
+                                    <span class="event-month">NOV</span>
+                                </div>
+                                <div class="event-content">
+                                    <h6 class="event-title">Reunión de Padres</h6>
+                                    <p class="event-description">Reunión trimestral con padres de familia</p>
+                                    <span class="event-time"><i class="bi bi-clock"></i> 3:00 PM</span>
+                                </div>
+                            </div>
+
+                            <div class="event-item">
+                                <div class="event-date">
+                                    <span class="event-day">20</span>
+                                    <span class="event-month">NOV</span>
+                                </div>
+                                <div class="event-content">
+                                    <h6 class="event-title">Examen Final - Matemáticas</h6>
+                                    <p class="event-description">Evaluación final del periodo</p>
+                                    <span class="event-time"><i class="bi bi-clock"></i> 8:00 AM</span>
+                                </div>
+                            </div>
+
+                            <div class="event-item">
+                                <div class="event-date">
+                                    <span class="event-day">25</span>
+                                    <span class="event-month">NOV</span>
+                                </div>
+                                <div class="event-content">
+                                    <h6 class="event-title">Capacitación Docente</h6>
+                                    <p class="event-description">Taller de nuevas metodologías</p>
+                                    <span class="event-time"><i class="bi bi-clock"></i> 2:00 PM</span>
+                                </div>
+                            </div>
+
+                            <div class="event-item">
+                                <div class="event-date">
+                                    <span class="event-day">30</span>
+                                    <span class="event-month">NOV</span>
+                                </div>
+                                <div class="event-content">
+                                    <h6 class="event-title">Cierre de Periodo</h6>
+                                    <p class="event-description">Fin del periodo académico</p>
+                                    <span class="event-time"><i class="bi bi-clock"></i> Todo el día</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Mostrar fecha actual
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateElement = document.getElementById('currentDate');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const currentDate = new Date().toLocaleDateString('es-ES', options);
+            dateElement.textContent = currentDate.charAt(0).toUpperCase() + currentDate.slice(1);
+        });
+    </script>
+}

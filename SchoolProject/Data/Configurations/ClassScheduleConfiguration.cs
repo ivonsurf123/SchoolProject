@@ -35,3 +35,4 @@ namespace SchoolProject.Data.Configurations
     }
 }
 
+

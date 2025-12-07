@@ -14,6 +14,6 @@ namespace SchoolProject.ViewModels
         public string Password { get; set; }
 
         [Display(Name = "Recordarme")]
-        public bool RemenberMe { get; set; }
+        public bool RememberMe { get; set; }
     }
 }

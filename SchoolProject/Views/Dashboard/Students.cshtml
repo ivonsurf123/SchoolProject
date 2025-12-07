@@ -1,0 +1,480 @@
+﻿@using SchoolProject.ViewModels
+@model PaginatedList<StudentViewModel>
+@{
+    ViewData["Title"] = "Gestión de Estudiantes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["BodyClass"] = "dashboard-page";
+}
+
+<div class="dashboard-container">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="dashboard-title">
+                        <i class="bi bi-people-fill"></i> Gestión de Estudiantes
+                    </h1>
+                    <p class="dashboard-subtitle">Administra la información de los estudiantes del colegio</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="dashboard-date">
+                        <i class="bi bi-calendar-check"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="container-fluid px-4 py-4">
+        <div class="dashboard-content-card">
+            <!-- Barra de Herramientas -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="bi bi-list-ul"></i> Lista de Estudiantes
+                        </h2>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#studentModal">
+                        <i class="bi bi-person-plus-fill"></i> Nuevo Estudiante
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Estudiantes -->
+            <div class="table-responsive">
+                <table class="table table-hover" id="studentsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre Completo</th>
+                            <th>Fecha Nac.</th>
+                            <th>Género</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Tutor</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in Model)
+                        {
+                            <tr>
+                                <td>@student.Code</td>
+                                <td>@student.Name @student.Lastname</td>
+                                <td>@student.BirthDate.ToString("dd/MM/yyyy")</td>
+                                <td>@student.Gender</td>
+                                <td>@student.Phone</td>
+                                <td>@student.Email</td>
+                                <td>@student.GuardianName</td>
+                                <td>
+                                    @if (student.IsActive)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary edit-btn"
+                                            data-id="@student.StudentId"
+                                            data-code="@student.Code"
+                                            data-name="@student.Name"
+                                            data-lastname="@student.Lastname"
+                                            data-birthdate="@student.BirthDate.ToString("yyyy-MM-dd")"
+                                            data-gender="@student.Gender"
+                                            data-address="@student.Address"
+                                            data-phone="@student.Phone"
+                                            data-email="@student.Email"
+                                            data-guardianname="@student.GuardianName"
+                                            data-guardianphone="@student.GuardianPhone"
+                                            data-enrollmentdate="@student.EnrollmentDate.ToString("yyyy-MM-dd")"
+                                            data-isactive="@student.IsActive.ToString().ToLower()">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-btn"
+                                            data-id="@student.StudentId"
+                                            data-name="@student.Name @student.Lastname">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <div class="row mt-4">
+                <div class="col-12 d-flex justify-content-between align-items-center">
+                    <span class="text-muted">
+                        Página @Model.PageIndex de @Model.TotalPages
+                    </span>
+
+                    <div>
+                        @* Botón Anterior *@
+                        <a asp-action="Students"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           class="btn btn-sm btn-outline-secondary @prevDisabled">
+                            Anterior
+                        </a>
+
+                        @* Botón Siguiente *@
+                        <a asp-action="Students"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           class="btn btn-sm btn-outline-secondary @nextDisabled">
+                            Siguiente
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <!-- Mensaje cuando no hay estudiantes -->
+            @if (!Model.Any())
+            {
+                <div id="noStudentsMessage" class="text-center py-5">
+                    <i class="bi bi-people display-1 text-muted"></i>
+                    <h3 class="mt-3 text-muted">No hay estudiantes registrados</h3>
+                    <p class="text-muted">Comienza agregando el primer estudiante al sistema.</p>
+                    <button class="btn btn-primary-custom mt-3" data-bs-toggle="modal" data-bs-target="#studentModal">
+                        <i class="bi bi-person-plus-fill"></i> Agregar Primer Estudiante
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL PARA CREAR ESTUDIANTE ======================== -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentModalLabel">
+                    <i class="bi bi-person-plus-fill"></i> Nuevo Estudiante
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="studentForm" asp-controller="Students" asp-action="CreateStudent" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Información Personal -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-person-badge"></i> Información Personal
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="Code" class="form-label required-field">Código del Estudiante</label>
+                                <input type="text" class="form-control" id="Code" name="Code" required maxlength="20">
+                                <div class="form-text">Código único identificador del estudiante</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Name" class="form-label required-field">Nombres</label>
+                                <input type="text" class="form-control" id="Name" name="Name" required maxlength="50">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Lastname" class="form-label required-field">Apellidos</label>
+                                <input type="text" class="form-control" id="Lastname" name="Lastname" required maxlength="50">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="BirthDate" class="form-label required-field">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="BirthDate" name="BirthDate" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Gender" class="form-label required-field">Género</label>
+                                <select class="form-select" id="Gender" name="Gender" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Femenino">Femenino</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Información de Contacto -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-telephone"></i> Información de Contacto
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="Email" class="form-label required-field">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="Email" name="Email" required maxlength="100">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Phone" class="form-label required-field">Teléfono</label>
+                                <input type="tel" class="form-control" id="Phone" name="Phone" required maxlength="20">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Address" class="form-label required-field">Dirección</label>
+                                <textarea class="form-control" id="Address" name="Address" rows="3" required maxlength="200"></textarea>
+                            </div>
+
+                            <h6 class="section-title mb-3 mt-4">
+                                <i class="bi bi-calendar-check"></i> Información Académica
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="EnrollmentDate" class="form-label required-field">Fecha de Matrícula</label>
+                                <input type="date" class="form-control" id="EnrollmentDate" name="EnrollmentDate" required>
+                            </div>
+
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="IsActive" name="IsActive" value="true" checked>
+                                <label class="form-check-label" for="IsActive">Estudiante Activo</label>
+                                <input type="hidden" name="IsActive" value="false">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información del Tutor -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-person-hearts"></i> Información del Tutor
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="GuardianName" class="form-label required-field">Nombre del Tutor</label>
+                                <input type="text" class="form-control" id="GuardianName" name="GuardianName" required maxlength="100">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="GuardianPhone" class="form-label required-field">Teléfono del Tutor</label>
+                                <input type="tel" class="form-control" id="GuardianPhone" name="GuardianPhone" required maxlength="20">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Guardar Estudiante
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL PARA EDITAR ESTUDIANTE ======================== -->
+<div class="modal fade" id="editStudentModal" tabindex="-1" aria-labelledby="editStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editStudentModalLabel">
+                    <i class="bi bi-pencil-fill"></i> Editar Estudiante
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editStudentForm" asp-controller="Students" asp-action="UpdateStudent" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="EditStudentId" name="StudentId" value="0" />
+                <input type="hidden" id="EditCodeHidden" name="Code" value="" />
+                <input type="hidden" id="EditNameHidden" name="Name" value="" />
+                <input type="hidden" id="EditLastnameHidden" name="Lastname" value="" />
+                <input type="hidden" id="EditBirthDateHidden" name="BirthDate" value="" />
+                <input type="hidden" id="EditGenderHidden" name="Gender" value="" />
+                <input type="hidden" id="EditEmailHidden" name="Email" value="" />
+                <input type="hidden" id="EditGuardianNameHidden" name="GuardianName" value="" />
+                <input type="hidden" id="EditGuardianPhoneHidden" name="GuardianPhone" value="" />
+                <input type="hidden" id="EditEnrollmentDateHidden" name="EnrollmentDate" value="" />
+
+                <div class="modal-body">
+                    <!-- Alerta informativa -->
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Modo Edición:</strong> Solo puedes modificar el <strong>teléfono</strong>, <strong>dirección</strong> y <strong>estado</strong> del estudiante.
+                    </div>
+
+                    <div class="row">
+                        <!-- Información Personal (SOLO LECTURA) -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-person-badge"></i> Información Personal
+                            </h6>
+
+                            <div class="mb-3">
+                                <label class="form-label">Código del Estudiante</label>
+                                <input type="text" class="form-control bg-light" id="EditCode" name="Code" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombres</label>
+                                <input type="text" class="form-control bg-light" id="EditName" name="Name" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Apellidos</label>
+                                <input type="text" class="form-control bg-light" id="EditLastname" name="Lastname" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control bg-light" id="EditBirthDate" name="BirthDate" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Género</label>
+                                <input type="text" class="form-control bg-light" id="EditGender" name="Gender" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control bg-light" id="EditEmail" name="Email" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Información de Contacto y Estado (EDITABLE) -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-telephone"></i> Información de Contacto
+                            </h6>
+
+                            <!-- CAMPO EDITABLE: Teléfono -->
+                            <div class="mb-3">
+                                <label for="EditPhone" class="form-label required-field">
+                                    <i class="bi bi-pencil-fill text-primary"></i> Teléfono
+                                </label>
+                                <input type="tel" class="form-control border-primary border-2" id="EditPhone" name="Phone" required maxlength="20">
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+
+                            <!-- CAMPO EDITABLE: Dirección -->
+                            <div class="mb-3">
+                                <label for="EditAddress" class="form-label required-field">
+                                    <i class="bi bi-pencil-fill text-primary"></i> Dirección
+                                </label>
+                                <textarea class="form-control border-primary border-2" id="EditAddress" name="Address" rows="3" required maxlength="200"></textarea>
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+
+                            <h6 class="section-title mb-3 mt-4">
+                                <i class="bi bi-calendar-check"></i> Información Académica
+                            </h6>
+
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Matrícula</label>
+                                <input type="date" class="form-control bg-light" id="EditEnrollmentDate" name="EnrollmentDate" readonly>
+                            </div>
+
+                            <!-- CAMPO EDITABLE: Estado -->
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="EditIsActive" name="IsActive" value="true">
+                                <label class="form-check-label" for="EditIsActive">
+                                    <i class="bi bi-pencil-fill text-primary"></i> <strong>Estudiante Activo</strong>
+                                </label>
+                                <input type="hidden" name="IsActive" value="false">
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información del Tutor (SOLO LECTURA) -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-person-hearts"></i> Información del Tutor
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Tutor</label>
+                                <input type="text" class="form-control bg-light" id="EditGuardianName" name="GuardianName" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Teléfono del Tutor</label>
+                                <input type="tel" class="form-control bg-light" id="EditGuardianPhone" name="GuardianPhone" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Actualizar Estudiante
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="deleteForm" asp-controller="Students" asp-action="DeleteStudent" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>desactivar</strong> al estudiante:</p>
+                    <p class="text-center">
+                        <strong class="fs-5" id="studentNameToDelete"></strong>
+                    </p>
+                    <input type="hidden" id="deleteStudentId" name="id" value="">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        <small>El estudiante será marcado como <strong>inactivo</strong> pero sus datos se conservarán en el sistema.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-check-lg"></i> Sí, Desactivar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/students.js"></script>
+}

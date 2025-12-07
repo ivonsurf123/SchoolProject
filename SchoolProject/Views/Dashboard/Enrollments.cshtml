@@ -1,0 +1,379 @@
+﻿@using SchoolProject.ViewModels
+@model PaginatedList<EnrollmentViewModel>
+@{
+    ViewData["Title"] = "Gestión de Inscripciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["BodyClass"] = "dashboard-page";
+}
+
+<div class="dashboard-container">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="dashboard-title">
+                        <i class="bi bi-clipboard-check"></i> Gestión de Inscripciones
+                    </h1>
+                    <p class="dashboard-subtitle">Administra las inscripciones de estudiantes en cursos</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="dashboard-date">
+                        <i class="bi bi-calendar-check"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="container-fluid px-4 py-4">
+        <!-- Mensajes de éxito/error -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="dashboard-content-card">
+            <!-- Barra de Herramientas -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="bi bi-list-ul"></i> Lista de Inscripciones
+                        </h2>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#enrollmentModal">
+                        <i class="bi bi-plus-circle-fill"></i> Nueva Inscripción
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Inscripciones -->
+            <div class="table-responsive">
+                <table class="table table-hover" id="enrollmentsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>Código Estudiante</th>
+                            <th>Curso</th>
+                            <th>Código Curso</th>
+                            <th>Periodo</th>
+                            <th>Fecha Inscripción</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var enrollment in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@enrollment.StudentName</strong>
+                                </td>
+                                <td>@enrollment.StudentCode</td>
+                                <td>@enrollment.CourseName</td>
+                                <td>@enrollment.CourseCode</td>
+                                <td><span class="badge bg-primary">@enrollment.Period</span></td>
+                                <td>@enrollment.EnrollmentDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if (enrollment.IsActive)
+                                    {
+                                        <span class="badge bg-success">Activa</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Cancelada</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary edit-btn"
+                                            data-id="@enrollment.EnrollmentId"
+                                            data-studentid="@enrollment.StudentId"
+                                            data-studentname="@enrollment.StudentName"
+                                            data-courseid="@enrollment.CourseId"
+                                            data-coursename="@enrollment.CourseName"
+                                            data-period="@enrollment.Period"
+                                            data-isactive="@enrollment.IsActive.ToString().ToLower()">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-btn"
+                                            data-id="@enrollment.EnrollmentId"
+                                            data-student="@enrollment.StudentName"
+                                            data-course="@enrollment.CourseName">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <div class="row mt-4">
+                <div class="col-12 d-flex justify-content-between align-items-center">
+                    <span class="text-muted">
+                        Página @Model.PageIndex de @Model.TotalPages
+                    </span>
+
+                    <div>
+                        <a asp-action="Enrollments"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           class="btn btn-sm btn-outline-secondary @prevDisabled">
+                            Anterior
+                        </a>
+
+                        <a asp-action="Enrollments"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           class="btn btn-sm btn-outline-secondary @nextDisabled">
+                            Siguiente
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensaje cuando no hay inscripciones -->
+            @if (!Model.Any())
+            {
+                <div id="noEnrollmentsMessage" class="text-center py-5">
+                    <i class="bi bi-clipboard-check display-1 text-muted"></i>
+                    <h3 class="mt-3 text-muted">No hay inscripciones registradas</h3>
+                    <p class="text-muted">Comienza inscribiendo estudiantes en cursos.</p>
+                    <button class="btn btn-primary-custom mt-3" data-bs-toggle="modal" data-bs-target="#enrollmentModal">
+                        <i class="bi bi-plus-circle-fill"></i> Crear Primera Inscripción
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL PARA CREAR INSCRIPCIÓN ======================== -->
+<div class="modal fade" id="enrollmentModal" tabindex="-1" aria-labelledby="enrollmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="enrollmentModalLabel">
+                    <i class="bi bi-plus-circle-fill"></i> Nueva Inscripción
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="enrollmentForm" asp-controller="Enrollments" asp-action="CreateEnrollment" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Información:</strong> Selecciona el estudiante y el curso para realizar la inscripción.
+                    </div>
+
+                    <div class="row">
+                        <!-- Selección de Estudiante -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-person-fill"></i> Seleccionar Estudiante
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="StudentId" class="form-label required-field">Estudiante</label>
+                                <select class="form-select" id="StudentId" name="StudentId" required>
+                                    <option value="">Seleccionar Estudiante</option>
+                                    @foreach (var student in ViewBag.Students)
+                                    {
+                                        <option value="@student.StudentId">
+                                            @student.Code - @student.FullName
+                                        </option>
+                                    }
+                                </select>
+                                <div class="form-text">Selecciona el estudiante a inscribir</div>
+                            </div>
+                        </div>
+
+                        <!-- Selección de Curso -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-journal-text"></i> Seleccionar Curso
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="CourseId" class="form-label required-field">Curso</label>
+                                <select class="form-select" id="CourseId" name="CourseId" required>
+                                    <option value="">Seleccionar Curso</option>
+                                    @foreach (var course in ViewBag.Courses)
+                                    {
+                                        <option value="@course.CourseId">
+                                            @course.Code - @course.Name
+                                        </option>
+                                    }
+                                </select>
+                                <div class="form-text">Selecciona el curso a inscribir</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Periodo Académico -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-calendar3"></i> Periodo Académico
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="Period" class="form-label required-field">Periodo</label>
+                                <input type="text" class="form-control" id="Period" name="Period"
+                                       required maxlength="20" placeholder="Ej: 2025-1">
+                                <div class="form-text">Formato sugerido: Año-Semestre (Ej: 2025-1)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Inscribir Estudiante
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL PARA EDITAR INSCRIPCIÓN ======================== -->
+<div class="modal fade" id="editEnrollmentModal" tabindex="-1" aria-labelledby="editEnrollmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editEnrollmentModalLabel">
+                    <i class="bi bi-pencil-fill"></i> Editar Inscripción
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editEnrollmentForm" asp-controller="Enrollments" asp-action="UpdateEnrollment" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="EditEnrollmentId" name="EnrollmentId" value="0" />
+                <input type="hidden" id="EditStudentIdHidden" name="StudentId" value="0" />
+                <input type="hidden" id="EditCourseIdHidden" name="CourseId" value="0" />
+
+                <div class="modal-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Modo Edición:</strong> Solo puedes modificar el <strong>periodo</strong> y <strong>estado</strong> de la inscripción.
+                    </div>
+
+                    <div class="row">
+                        <!-- Información de la Inscripción (SOLO LECTURA) -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-info-circle"></i> Información de la Inscripción
+                            </h6>
+
+                            <div class="mb-3">
+                                <label class="form-label">Estudiante</label>
+                                <input type="text" class="form-control bg-light" id="EditStudentName" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Curso</label>
+                                <input type="text" class="form-control bg-light" id="EditCourseName" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Campos Editables -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-pencil"></i> Campos Editables
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="EditPeriod" class="form-label required-field">
+                                    <i class="bi bi-pencil-fill text-primary"></i> Periodo
+                                </label>
+                                <input type="text" class="form-control border-primary border-2" id="EditPeriod" name="Period"
+                                       required maxlength="20">
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="EditIsActive" name="IsActive" value="true">
+                                <label class="form-check-label" for="EditIsActive">
+                                    <i class="bi bi-pencil-fill text-primary"></i> <strong>Inscripción Activa</strong>
+                                </label>
+                                <input type="hidden" name="IsActive" value="false">
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Actualizar Inscripción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Cancelar -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Cancelación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="deleteForm" asp-controller="Enrollments" asp-action="DeleteEnrollment" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>cancelar</strong> la inscripción de:</p>
+                    <p class="text-center">
+                        <strong class="fs-6" id="enrollmentInfoToDelete"></strong>
+                    </p>
+                    <input type="hidden" id="deleteEnrollmentId" name="id" value="">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        <small>La inscripción será marcada como <strong>cancelada</strong> pero sus datos se conservarán en el sistema.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> No, Mantener
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-check-lg"></i> Sí, Cancelar Inscripción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/enrollments.js"></script>
+}

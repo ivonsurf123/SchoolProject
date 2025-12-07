@@ -1,0 +1,436 @@
+﻿@using SchoolProject.ViewModels
+@model PaginatedList<CourseViewModel>
+@{
+    ViewData["Title"] = "Gestión de Cursos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["BodyClass"] = "dashboard-page";
+}
+
+<div class="dashboard-container">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="dashboard-title">
+                        <i class="bi bi-journal-text"></i> Gestión de Cursos
+                    </h1>
+                    <p class="dashboard-subtitle">Administra los cursos académicos del colegio</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="dashboard-date">
+                        <i class="bi bi-calendar-check"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <div class="container-fluid px-4 py-4">
+        <div class="dashboard-content-card">
+            <!-- Barra de Herramientas -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="bi bi-list-ul"></i> Lista de Cursos
+                        </h2>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#courseModal">
+                        <i class="bi bi-plus-circle-fill"></i> Nuevo Curso
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Cursos -->
+            <div class="table-responsive">
+                <table class="table table-hover" id="coursesTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre del Curso</th>
+                            <th>Créditos</th>
+                            <th>Nivel</th>
+                            <th>Grado</th>
+                            <th>Profesor Asignado</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var course in Model)
+                        {
+                            <tr>
+                                <td>@course.Code</td>
+                                <td>
+                                    <strong>@course.Name</strong><br />
+                                    <small class="text-muted">@course.Description</small>
+                                </td>
+                                <td><span class="badge bg-info">@course.Credits créditos</span></td>
+                                <td>@course.Level</td>
+                                <td>@course.Grade</td>
+                                <td>@course.ProfessorName</td>
+                                <td>
+                                    @if (course.IsActive)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary edit-btn"
+                                            data-id="@course.CourseId"
+                                            data-code="@course.Code"
+                                            data-name="@course.Name"
+                                            data-description="@course.Description"
+                                            data-credits="@course.Credits"
+                                            data-level="@course.Level"
+                                            data-grade="@course.Grade"
+                                            data-professorid="@course.ProfessorId"
+                                            data-isactive="@course.IsActive.ToString().ToLower()">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-btn"
+                                            data-id="@course.CourseId"
+                                            data-name="@course.Name">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <div class="row mt-4">
+                <div class="col-12 d-flex justify-content-between align-items-center">
+                    <span class="text-muted">
+                        Página @Model.PageIndex de @Model.TotalPages
+                    </span>
+
+                    <div>
+                        <a asp-action="Courses"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           class="btn btn-sm btn-outline-secondary @prevDisabled">
+                            Anterior
+                        </a>
+
+                        <a asp-action="Courses"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           class="btn btn-sm btn-outline-secondary @nextDisabled">
+                            Siguiente
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensaje cuando no hay cursos -->
+            @if (!Model.Any())
+            {
+                <div id="noCoursesMessage" class="text-center py-5">
+                    <i class="bi bi-journal-text display-1 text-muted"></i>
+                    <h3 class="mt-3 text-muted">No hay cursos registrados</h3>
+                    <p class="text-muted">Comienza agregando el primer curso al sistema.</p>
+                    <button class="btn btn-primary-custom mt-3" data-bs-toggle="modal" data-bs-target="#courseModal">
+                        <i class="bi bi-plus-circle-fill"></i> Agregar Primer Curso
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL PARA CREAR CURSO ======================== -->
+<div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="courseModalLabel">
+                    <i class="bi bi-plus-circle-fill"></i> Nuevo Curso
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="courseForm" asp-controller="Courses" asp-action="CreateCourse" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Información del Curso -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-info-circle"></i> Información del Curso
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="Code" class="form-label required-field">Código del Curso</label>
+                                <input type="text" class="form-control" id="Code" name="Code" required maxlength="20">
+                                <div class="form-text">Código único identificador del curso</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Name" class="form-label required-field">Nombre del Curso</label>
+                                <input type="text" class="form-control" id="Name" name="Name" required maxlength="100">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Description" class="form-label required-field">Descripción</label>
+                                <textarea class="form-control" id="Description" name="Description" rows="3" required maxlength="500"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Credits" class="form-label required-field">Créditos</label>
+                                <input type="number" class="form-control" id="Credits" name="Credits" required min="1" max="10">
+                                <div class="form-text">Entre 1 y 10 créditos</div>
+                            </div>
+                        </div>
+
+                        <!-- Configuración Académica -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-gear"></i> Configuración Académica
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="Level" class="form-label required-field">Nivel</label>
+                                <select class="form-select" id="Level" name="Level" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Básico">Básico</option>
+                                    <option value="Intermedio">Intermedio</option>
+                                    <option value="Avanzado">Avanzado</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Grade" class="form-label required-field">Grado</label>
+                                <select class="form-select" id="Grade" name="Grade" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="1°">1° Grado</option>
+                                    <option value="2°">2° Grado</option>
+                                    <option value="3°">3° Grado</option>
+                                    <option value="4°">4° Grado</option>
+                                    <option value="5°">5° Grado</option>
+                                    <option value="6°">6° Grado</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="ProfessorId" class="form-label required-field">Profesor Asignado</label>
+                                <select class="form-select" id="ProfessorId" name="ProfessorId" required>
+                                    <option value="">Seleccionar Profesor</option>
+                                    @foreach (var professor in ViewBag.Professors)
+                                    {
+                                        <option value="@professor.ProfessorId">@professor.FullName</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="IsActive" name="IsActive" value="true" checked>
+                                <label class="form-check-label" for="IsActive">Curso Activo</label>
+                                <input type="hidden" name="IsActive" value="false">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Guardar Curso
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MODAL PARA EDITAR CURSO ======================== -->
+<div class="modal fade" id="editCourseModal" tabindex="-1" aria-labelledby="editCourseModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editCourseModalLabel">
+                    <i class="bi bi-pencil-fill"></i> Editar Curso
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editCourseForm" asp-controller="Courses" asp-action="UpdateCourse" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="EditCourseId" name="CourseId" value="0" />
+                <input type="hidden" id="EditCodeHidden" name="Code" value="" />
+                <input type="hidden" id="EditNameHidden" name="Name" value="" />
+
+                <div class="modal-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Modo Edición:</strong> Solo puedes modificar <strong>descripción, créditos, nivel, grado, profesor asignado y estado</strong> del curso.
+                    </div>
+
+                    <div class="row">
+                        <!-- Información del Curso (SOLO LECTURA) -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-info-circle"></i> Información del Curso
+                            </h6>
+
+                            <div class="mb-3">
+                                <label class="form-label">Código del Curso</label>
+                                <input type="text" class="form-control bg-light" id="EditCode" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Curso</label>
+                                <input type="text" class="form-control bg-light" id="EditName" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="EditDescription" class="form-label required-field">
+                                    <i class="bi bi-pencil-fill text-primary"></i> Descripción
+                                </label>
+                                <textarea class="form-control border-primary border-2" id="EditDescription" name="Description" rows="3" required maxlength="500"></textarea>
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="EditCredits" class="form-label required-field">
+                                    <i class="bi bi-pencil-fill text-primary"></i> Créditos
+                                </label>
+                                <input type="number" class="form-control border-primary border-2" id="EditCredits" name="Credits" required min="1" max="10">
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuración Académica (EDITABLE) -->
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-gear"></i> Configuración Académica
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="EditLevel" class="form-label required-field">
+                                    <i class="bi bi-pencil-fill text-primary"></i> Nivel
+                                </label>
+                                <select class="form-select border-primary border-2" id="EditLevel" name="Level" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="Básico">Básico</option>
+                                    <option value="Intermedio">Intermedio</option>
+                                    <option value="Avanzado">Avanzado</option>
+                                </select>
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="EditGrade" class="form-label required-field">
+                                    <i class="bi bi-pencil-fill text-primary"></i> Grado
+                                </label>
+                                <select class="form-select border-primary border-2" id="EditGrade" name="Grade" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="1°">1° Grado</option>
+                                    <option value="2°">2° Grado</option>
+                                    <option value="3°">3° Grado</option>
+                                    <option value="4°">4° Grado</option>
+                                    <option value="5°">5° Grado</option>
+                                    <option value="6°">6° Grado</option>
+                                </select>
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="EditProfessorId" class="form-label required-field">
+                                    <i class="bi bi-pencil-fill text-primary"></i> Profesor Asignado
+                                </label>
+                                <select class="form-select border-primary border-2" id="EditProfessorId" name="ProfessorId" required>
+                                    <option value="">Seleccionar Profesor</option>
+                                    @foreach (var professor in ViewBag.Professors)
+                                    {
+                                        <option value="@professor.ProfessorId">@professor.FullName</option>
+                                    }
+                                </select>
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="EditIsActive" name="IsActive" value="true">
+                                <label class="form-check-label" for="EditIsActive">
+                                    <i class="bi bi-pencil-fill text-primary"></i> <strong>Curso Activo</strong>
+                                </label>
+                                <input type="hidden" name="IsActive" value="false">
+                                <div class="form-text text-primary">
+                                    <strong>Este campo es editable</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Actualizar Curso
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="deleteForm" asp-controller="Courses" asp-action="DeleteCourse" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas <strong>desactivar</strong> el curso:</p>
+                    <p class="text-center">
+                        <strong class="fs-5" id="courseNameToDelete"></strong>
+                    </p>
+                    <input type="hidden" id="deleteCourseId" name="id" value="">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        <small>El curso será marcado como <strong>inactivo</strong> pero sus datos se conservarán en el sistema.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-check-lg"></i> Sí, Desactivar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/courses.js"></script>
+}

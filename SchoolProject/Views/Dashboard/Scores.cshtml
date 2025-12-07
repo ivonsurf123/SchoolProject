@@ -1,0 +1,405 @@
+﻿@using SchoolProject.ViewModels
+@model PaginatedList<ScoreViewModel>
+@{
+    ViewData["Title"] = "Gestión de Calificaciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["BodyClass"] = "dashboard-page";
+}
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="dashboard-title">
+                        <i class="bi bi-card-checklist"></i> Gestión de Calificaciones
+                    </h1>
+                    <p class="dashboard-subtitle">Administra las notas y evaluaciones de los estudiantes</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="dashboard-date">
+                        <i class="bi bi-calendar-check"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid px-4 py-4">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="dashboard-content-card">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="bi bi-list-ul"></i> Lista de Calificaciones
+                        </h2>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#scoreModal">
+                        <i class="bi bi-plus-circle-fill"></i> Nueva Calificación
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover" id="scoresTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>Curso</th>
+                            <th>Tipo de Evaluación</th>
+                            <th>Calificación</th>
+                            <th>Estado</th>
+                            <th>Período</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var score in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@score.StudentName</strong> (@score.StudentCode)
+                                </td>
+                                <td>@score.CourseName (@score.CourseCode)</td>
+                                <td>@score.EvaluationType</td>
+                                <td><span class="fs-5 badge bg-secondary">@score.Value</span></td>
+                                <td>
+                                    @if (score.IsApproved)
+                                    {
+                                        <span class="badge bg-success">Aprobado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Reprobado</span>
+                                    }
+                                </td>
+                                <td><span class="badge bg-primary">@score.Period</span></td>
+                                <td>@score.Date.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary edit-btn"
+                                            data-id="@score.ScoreId"
+                                            data-studentid="@score.StudentId"
+                                            data-studentname="@score.StudentName"
+                                            data-courseid="@score.CourseId"
+                                            data-coursename="@score.CourseName"
+                                            data-evaluationtype="@score.EvaluationType"
+                                            data-value="@score.Value"
+                                            data-date="@score.Date.ToString("yyyy-MM-dd")"
+                                            data-period="@score.Period"
+                                            data-observations="@score.Observations">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-btn"
+                                            data-id="@score.ScoreId"
+                                            data-student="@score.StudentName"
+                                            data-course="@score.CourseName"
+                                            data-type="@score.EvaluationType">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @{
+                var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+            }
+
+            <div class="row mt-4">
+                <div class="col-12 d-flex justify-content-between align-items-center">
+                    <span class="text-muted">
+                        Página @Model.PageIndex de @Model.TotalPages
+                    </span>
+
+                    <div>
+                        <a asp-action="Scores"
+                           asp-route-pageNumber="@(Model.PageIndex - 1)"
+                           class="btn btn-sm btn-outline-secondary @prevDisabled">
+                            Anterior
+                        </a>
+
+                        <a asp-action="Scores"
+                           asp-route-pageNumber="@(Model.PageIndex + 1)"
+                           class="btn btn-sm btn-outline-secondary @nextDisabled">
+                            Siguiente
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div id="noScoresMessage" class="text-center py-5">
+                    <i class="bi bi-card-checklist display-1 text-muted"></i>
+                    <h3 class="mt-3 text-muted">No hay calificaciones registradas</h3>
+                    <p class="text-muted">Comienza registrando las notas de los estudiantes.</p>
+                    <button class="btn btn-primary-custom mt-3" data-bs-toggle="modal" data-bs-target="#scoreModal">
+                        <i class="bi bi-plus-circle-fill"></i> Registrar Primera Calificación
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="scoreModal" tabindex="-1" aria-labelledby="scoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scoreModalLabel">
+                    <i class="bi bi-plus-circle-fill"></i> Nueva Calificación
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="scoreForm" asp-controller="Scores" asp-action="CreateScore" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Importante:</strong> Solo puedes registrar calificaciones para estudiantes **actualmente inscritos** en el curso.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3"><i class="bi bi-person-fill"></i> Estudiante</h6>
+                            <div class="mb-3">
+                                <label for="StudentId" class="form-label required-field">Seleccionar Estudiante</label>
+                                <select class="form-select" id="StudentId" name="StudentId" required>
+                                    <option value="">Seleccionar Estudiante</option>
+                                    @foreach (var student in ViewBag.Students)
+                                    {
+                                        <option value="@student.StudentId">
+                                            @student.Code - @student.FullName
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3"><i class="bi bi-journal-text"></i> Curso</h6>
+                            <div class="mb-3">
+                                <label for="CourseId" class="form-label required-field">Seleccionar Curso</label>
+                                <select class="form-select" id="CourseId" name="CourseId" required>
+                                    <option value="">Seleccionar Curso</option>
+                                    @foreach (var course in ViewBag.Courses)
+                                    {
+                                        <option value="@course.CourseId">
+                                            @course.Code - @course.Name
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3"><i class="bi bi-file-earmark-text"></i> Detalle de Evaluación</h6>
+                            <div class="mb-3">
+                                <label for="EvaluationType" class="form-label required-field">Tipo de Evaluación</label>
+                                <input type="text" class="form-control" id="EvaluationType" name="EvaluationType"
+                                       required maxlength="50" placeholder="Ej: Parcial 1, Tarea Final">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Value" class="form-label required-field">Calificación (0 - 100)</label>
+                                <input type="number" step="0.01" class="form-control" id="Value" name="Value"
+                                       required min="0" max="100" placeholder="Ej: 85.50">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3"><i class="bi bi-calendar3"></i> Datos Temporales</h6>
+                            <div class="mb-3">
+                                <label for="Date" class="form-label required-field">Fecha de Evaluación</label>
+                                <input type="date" class="form-control" id="Date" name="Date" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="Period" class="form-label required-field">Período Académico</label>
+                                <input type="text" class="form-control" id="Period" name="Period"
+                                       required maxlength="20" placeholder="Ej: 2025-1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="Observations" class="form-label">Observaciones (Opcional)</label>
+                                <textarea class="form-control" id="Observations" name="Observations" rows="3"
+                                          maxlength="200" placeholder="Comentarios adicionales sobre la nota..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Registrar Calificación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editScoreModal" tabindex="-1" aria-labelledby="editScoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editScoreModalLabel">
+                    <i class="bi bi-pencil-fill"></i> Editar Calificación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editScoreForm" asp-controller="Scores" asp-action="UpdateScore" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="EditScoreId" name="ScoreId" value="0" />
+                <input type="hidden" id="EditStudentIdHidden" name="StudentId" value="0" />
+                <input type="hidden" id="EditCourseIdHidden" name="CourseId" value="0" />
+
+                <div class="modal-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <strong>Modo Edición:</strong> Los campos de Estudiante y Curso son de solo lectura.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-info-circle"></i> Datos No Editables
+                            </h6>
+
+                            <div class="mb-3">
+                                <label class="form-label">Estudiante</label>
+                                <input type="text" class="form-control bg-light" id="EditStudentName" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Curso</label>
+                                <input type="text" class="form-control bg-light" id="EditCourseName" readonly>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6 class="section-title mb-3">
+                                <i class="bi bi-pencil"></i> Campos Editables
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="EditEvaluationType" class="form-label required-field">Tipo de Evaluación</label>
+                                <input type="text" class="form-control border-primary border-2" id="EditEvaluationType" name="EvaluationType"
+                                       required maxlength="50" placeholder="Ej: Parcial 1">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="EditValue" class="form-label required-field">Calificación (0 - 100)</label>
+                                <input type="number" step="0.01" class="form-control border-primary border-2" id="EditValue" name="Value"
+                                       required min="0" max="100" placeholder="Ej: 85.50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="EditDate" class="form-label required-field">Fecha de Evaluación</label>
+                                <input type="date" class="form-control border-primary border-2" id="EditDate" name="Date" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="EditPeriod" class="form-label required-field">Período Académico</label>
+                                <input type="text" class="form-control border-primary border-2" id="EditPeriod" name="Period"
+                                       required maxlength="20" placeholder="Ej: 2025-1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="EditObservations" class="form-label">Observaciones (Opcional)</label>
+                                <textarea class="form-control border-primary border-2" id="EditObservations" name="Observations" rows="3"
+                                          maxlength="200" placeholder="Comentarios adicionales sobre la nota..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Actualizar Calificación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="deleteForm" asp-controller="Scores" asp-action="DeleteScore" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas **eliminar permanentemente** la siguiente calificación?</p>
+                    <p class="text-center">
+                        <strong class="fs-6" id="scoreInfoToDelete"></strong>
+                    </p>
+                    <input type="hidden" id="deleteScoreId" name="id" value="">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i>
+                        <small>Esta acción **no se puede deshacer**. El registro de la calificación se perderá.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> No, Conservar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-check-lg"></i> Sí, Eliminar Calificación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/scores.js"></script>
+}
